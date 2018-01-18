@@ -2,7 +2,6 @@
 using Microsoft.EntityFrameworkCore.Query.Sql;
 using Microsoft.EntityFrameworkCore.Query.Sql.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
-using System.Linq;
 using System.Linq.Expressions;
 
 namespace Lexor.Data.SqlServerSpatial
