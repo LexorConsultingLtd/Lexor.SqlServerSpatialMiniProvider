@@ -1,5 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Lexor.Data.SqlServerSpatial.Settings;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,9 +13,13 @@ namespace Lexor.Data.SqlServerSpatial
     public abstract class SqlServerSpatialDbContext : DbContext
     {
         public static Dictionary<Type, SqlServerSpatialEntityMetadata> SpatialEntities { get; private set; }
+        private SqlServerSpatialSettings Settings { get; }
 
-        public SqlServerSpatialDbContext(DbContextOptions options)
-            : base(options) { }
+        protected SqlServerSpatialDbContext(DbContextOptions options, IOptions<SqlServerSpatialSettings> settings)
+            : base(options)
+        {
+            Settings = settings.Value;
+        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -22,7 +28,8 @@ namespace Lexor.Data.SqlServerSpatial
             {
                 var tableName = modelBuilder.Entity(entity.ClrType).Metadata.SqlServer().TableName;
                 var keyName = entity.FindPrimaryKey().Properties[0].Name;
-                SpatialEntities.Add(entity.ClrType, new SqlServerSpatialEntityMetadata(entity, tableName, keyName, property.Name, geometryType, entity.GetProperties().ToList()));
+                var metadata = new SqlServerSpatialEntityMetadata(entity, tableName, keyName, property.Name, geometryType, entity.GetProperties().ToList());
+                SpatialEntities.Add(entity.ClrType, metadata);
 
                 var propertyBuilder = modelBuilder
                     .Entity(entity.Name)
@@ -36,11 +43,28 @@ namespace Lexor.Data.SqlServerSpatial
                     .IsRequired(false);
                 propertyBuilder.Metadata.BeforeSaveBehavior = PropertySaveBehavior.Ignore;
 
-                PerformAdditionalSpatialColumnProcessing(modelBuilder, entity, property);
+                PerformAdditionalSpatialColumnProcessing(modelBuilder, entity, property, metadata);
             }
         }
 
-        protected virtual void PerformAdditionalSpatialColumnProcessing(ModelBuilder modelBuilder, IEntityType entityType, PropertyInfo property) { }
+        protected virtual void PerformAdditionalSpatialColumnProcessing(ModelBuilder modelBuilder, IEntityType entityType, PropertyInfo property, SqlServerSpatialEntityMetadata metadata)
+        {
+            // Ensure spatial index exists, create it if not
+            var spatialIndexName = $"{metadata.TableName}{metadata.GeometryFieldName}SpatialIndex";
+            var sql = $@"
+if not exists (select 1 from sys.indexes where name = '{spatialIndexName}')
+begin
+create spatial index [{spatialIndexName}]
+on [{metadata.TableName}]([{metadata.GeometryFieldName}])
+using geometry_auto_grid
+with (bounding_box = {SpatialIndexBoundingBox})
+end
+";
+            Database.ExecuteSqlCommand(sql);
+        }
+
+        protected string SpatialIndexBoundingBox =>
+            $"(xmin={Settings.SpatialIndex.XMin}, xmax={Settings.SpatialIndex.XMax}, ymin={Settings.SpatialIndex.YMin}, ymax={Settings.SpatialIndex.YMax})";
 
         public async Task UpdatePointGeometry(int id, Type entityType, string geometryColumnName, decimal x, decimal y)
         {
