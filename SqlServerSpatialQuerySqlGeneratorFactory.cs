@@ -7,7 +7,7 @@ namespace Lexor.Data.SqlServerSpatial
 {
     public class SqlServerSpatialQuerySqlGeneratorFactory : SqlServerQuerySqlGeneratorFactory
     {
-        private ISqlServerOptions sqlServerOptions;
+        private readonly ISqlServerOptions sqlServerOptions;
 
         public SqlServerSpatialQuerySqlGeneratorFactory(QuerySqlGeneratorDependencies dependencies, ISqlServerOptions sqlServerOptions)
             : base(dependencies, sqlServerOptions)
