@@ -48,6 +48,17 @@ namespace Lexor.Data.SqlServerSpatial
         }
 
         protected virtual void PerformAdditionalSpatialColumnProcessing(ModelBuilder modelBuilder, IEntityType entityType, PropertyInfo property, SqlServerSpatialEntityMetadata metadata)
+        { }
+
+        public void EnsureSpatialIndexesExist()
+        {
+            foreach (var spatialEntity in SpatialEntities)
+            {
+                EnsureSpatialIndexExists(spatialEntity.Value);
+            }
+        }
+
+        private void EnsureSpatialIndexExists(SqlServerSpatialEntityMetadata metadata)
         {
             // Ensure spatial index exists, create it if not
             var spatialIndexName = $"{metadata.TableName}{metadata.GeometryFieldName}SpatialIndex";
