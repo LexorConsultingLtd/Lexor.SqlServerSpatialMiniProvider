@@ -15,7 +15,7 @@ namespace Lexor.Data.SqlServerSpatial
             {
                 var spatialColumns = entity
                     .GetProperties()
-                    .Where(p => IsSpatialColumn(p))
+                    .Where(IsSpatialColumn)
                     .Select(p => p.PropertyInfo)
                     .ToList();
                 foreach (var column in spatialColumns)

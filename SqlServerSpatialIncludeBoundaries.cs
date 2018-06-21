@@ -122,16 +122,14 @@ namespace Lexor.Data.SqlServerSpatial
         {
             var prm = Expression.Parameter(typeof(object));
             var pathFromQuerySource = Resolve(prm, prm, clauseGenerationContext);
-            var navigationPropertyPath = _navigationPropertyPathLambda.Body as MemberExpression;
 
-            if (navigationPropertyPath == null)
+            if (!(_navigationPropertyPathLambda.Body is MemberExpression navigationPropertyPath))
             {
-                throw new InvalidOperationException(
-                    CoreStrings.InvalidComplexPropertyExpression(_navigationPropertyPathLambda));
+                throw new InvalidOperationException(CoreStrings.InvalidPropertyExpression(_navigationPropertyPathLambda));
             }
 
             var includeResultOperator = new IncludeResultOperator(
-                _navigationPropertyPathLambda.GetComplexPropertyAccess().Select(p => p.Name),
+                _navigationPropertyPathLambda.GetComplexPropertyAccess("?not sure what goes here?").Select(p => p.Name),
                 pathFromQuerySource);
 
             clauseGenerationContext.AddContextInfo(this, includeResultOperator);
@@ -153,36 +151,6 @@ namespace Lexor.Data.SqlServerSpatial
                 clauseGenerationContext);
     }
 
-
-    //public class WithLockExpressionNode : ResultOperatorExpressionNodeBase
-    //{
-    //    public static readonly IReadOnlyCollection<MethodInfo> SupportedMethods = new[]
-    //    {
-    //        SqlServerSpatialQueryableExtensions.WithLockMethodInfo
-    //    };
-
-    //    public WithLockExpressionNode(
-    //        MethodCallExpressionParseInfo parseInfo,
-    //        ConstantExpression tableName) : base(parseInfo, null, null)
-    //    {
-    //        if (tableName.Type != typeof(string))
-    //        {
-    //            throw new ArgumentException(nameof(tableName), $"Needs to be of type {typeof(string)} instead of {tableName.Type}");
-    //        }
-    //    }
-
-    //    public override Expression Resolve(ParameterExpression inputParameter,
-    //        Expression expressionToBeResolved,
-    //        ClauseGenerationContext clauseGenerationContext)
-    //    {
-    //        return expressionToBeResolved;
-    //    }
-
-    //    protected override ResultOperatorBase CreateResultOperator(ClauseGenerationContext clauseGenerationContext)
-    //    {
-    //        return null;
-    //    }
-    //}
 
     public class SqlServerSpatialMethodInfoBasedNodeTypeRegistryFactory : MethodInfoBasedNodeTypeRegistryFactory
     {
