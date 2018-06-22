@@ -71,7 +71,9 @@ using geometry_auto_grid
 with (bounding_box = {SpatialIndexBoundingBox})
 end
 ";
+#pragma warning disable EF1000 // Possible SQL injection vulnerability.
             Database.ExecuteSqlCommand(sql);
+#pragma warning restore EF1000 // Possible SQL injection vulnerability.
         }
 
         protected string SpatialIndexBoundingBox =>
@@ -89,7 +91,9 @@ end
             var tableName = model.SqlServer().TableName;
             var keyColumnName = model.FindPrimaryKey().Properties[0].Name;
             var sql = $"update {tableName} set {geometryColumnName} = geometry::STGeomFromText('{value}', 0) where {keyColumnName} = {id}";
+#pragma warning disable EF1000 // Possible SQL injection vulnerability.
             await Database.ExecuteSqlCommandAsync(sql);
+#pragma warning restore EF1000 // Possible SQL injection vulnerability.
         }
     }
 }
