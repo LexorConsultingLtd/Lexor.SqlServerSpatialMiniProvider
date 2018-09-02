@@ -3,6 +3,13 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
     <RootNamespace>Lexor.Data.SqlServerSpatial</RootNamespace>
+    <AssemblyName>Lexor.Data.SqlServerSpatialMiniProvider</AssemblyName>
+    <Authors>Steve Lamotte</Authors>
+    <Company>Lexor Consulting Ltd.</Company>
+    <Product>Spatial additions for SQL Server on EF Core</Product>
+    <Description>Extends the SQL Server provider for EF Core to handle spatial data</Description>
+    <PackageReleaseNotes>This package is not for public consumption and no support will be provided.</PackageReleaseNotes>
+    <Version>1.0.1</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">

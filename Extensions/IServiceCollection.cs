@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Lexor.Data.SqlServerSpatial.Extensions
 {
+    // ReSharper disable once InconsistentNaming
     public static class IServiceCollectionExtensions
     {
         // Force use of custom services for SqlServerSpatial mini-provider

@@ -123,7 +123,7 @@ namespace Lexor.Data.SqlServerSpatial
             var prm = Expression.Parameter(typeof(object));
             var pathFromQuerySource = Resolve(prm, prm, clauseGenerationContext);
 
-            if (!(_navigationPropertyPathLambda.Body is MemberExpression navigationPropertyPath))
+            if (!(_navigationPropertyPathLambda.Body is MemberExpression))
             {
                 throw new InvalidOperationException(CoreStrings.InvalidPropertyExpression(_navigationPropertyPathLambda));
             }
@@ -163,12 +163,11 @@ namespace Lexor.Data.SqlServerSpatial
         {
             RegisterMethods(IncludeContainingBoundaryExpressionNode.SupportedMethods, typeof(IncludeContainingBoundaryExpressionNode));
 
-            var innerProviders
-                = new INodeTypeProvider[]
-                {
-                    base.Create(),
-                    MethodNameBasedNodeTypeRegistry.CreateFromRelinqAssembly()
-                };
+            var innerProviders = new[]
+            {
+                base.Create(),
+                MethodNameBasedNodeTypeRegistry.CreateFromRelinqAssembly()
+            };
 
             return new CompoundNodeTypeProvider(innerProviders);
         }
